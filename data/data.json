@@ -1,0 +1,44 @@
+{
+  "faculty": {
+    "name": "Dr. Supervisor Name",
+    "designation": "Head of Department, DS & CS",
+    "department": "Department of Data Science and Computing Systems",
+    "cabin": "Cabin 304, Block B",
+    "avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=HOD"
+  },
+  "current_status": {
+    "state": "away",
+    "activity_reason": "Out for Lunch Break",
+    "location": "Faculty Lounge",
+    "expected_return": "8:17 PM",
+    "last_updated": "2026-10-15T14:02:31.848Z",
+    "updated_by": "hod"
+  },
+  "timetable_today": [
+    {
+      "time": "09:00 - 10:00",
+      "activity": "Cabin Hours",
+      "location": "Cabin 304"
+    },
+    {
+      "time": "10:00 - 11:30",
+      "activity": "Lecture: Advanced Data Science",
+      "location": "Block C - Room 302"
+    },
+    {
+      "time": "11:30 - 13:00",
+      "activity": "Open Consultations",
+      "location": "Cabin 304"
+    },
+    {
+      "time": "13:00 - 14:00",
+      "activity": "Lunch Break",
+      "location": "Faculty Lounge"
+    },
+    {
+      "time": "14:00 - 16:00",
+      "activity": "Data Science Lab Review",
+      "location": "AI Computing Lab"
+    }
+  ]
+}

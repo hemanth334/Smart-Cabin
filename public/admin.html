@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Cabin – Faculty Admin Control Panel</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><rect x='2' y='4' width='20' height='16' rx='2'/></svg>">
+  <script src="/socket.io/socket.io.js"></script>
+  <script defer src="/js/admin.js"></script>
+</head>
+<body>
+  <!-- Top Navbar -->
+  <header class="navbar">
+    <div class="brand-wrapper">
+      <div class="brand-icon" style="background: linear-gradient(135deg, #6366f1, #a855f7);">
+        <svg viewBox="0 0 24 24">
+          <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>Smart Cabin <span class="highlight">Admin Dock</span></h1>
+        <p>Faculty Live Availability Override & Predict Station</p>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Live Clock -->
+      <div class="live-clock-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span id="adminLiveClock">--:--:--</span>
+      </div>
+
+      <!-- Socket Status -->
+      <div id="adminSocketStatus" class="socket-status-pill">
+        <span class="status-dot-pulse" style="width: 8px; height: 8px;"></span>
+        <span id="adminSocketText">Connecting...</span>
+      </div>
+
+      <!-- Public View Switcher -->
+      <a href="/index.html" class="nav-link" target="_blank">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+        Student View
+      </a>
+
+      <!-- Sign Out / Switch Role -->
+      <a href="/login.html" class="nav-link" id="adminSignOutBtn" title="Switch Identity">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        Sign Out
+      </a>
+    </div>
+  </header>
+
+  <!-- Admin Controls Layout -->
+  <main class="admin-container">
+
+    <!-- Active Live Status Overview Strip -->
+    <div class="card" style="padding: 1.25rem 1.75rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.7));">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=HOD" alt="Faculty" style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--primary-indigo);">
+        <div>
+          <div style="font-size: 1.1rem; font-weight: 700; color: #ffffff;">Dr. Supervisor Name</div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">Cabin 304, Block B • Real-Time Transmitter</div>
+        </div>
+      </div>
+
+      <div class="admin-current-preview">
+        <span>Active Broadcast:</span>
+        <strong id="activeBroadcastBadge" style="color: #10b981; font-weight: 700;">AVAILABLE</strong>
+        <span id="activeBroadcastReason" style="opacity: 0.8; font-size: 0.8rem;">(In Cabin)</span>
+      </div>
+    </div>
+
+    <!-- Main Override Control Card -->
+    <div class="admin-card">
+      <div class="admin-header">
+        <div>
+          <h2>One-Click Status Presets</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+            Select a preset to auto-populate reason, state, and location or configure custom values below.
+          </p>
+        </div>
+      </div>
+
+      <!-- 4 Quick Presets Grid -->
+      <div class="preset-grid">
+        <!-- Preset 1: Available -->
+        <button type="button" class="preset-btn preset-available active" id="presetAvailBtn" data-state="available">
+          <div class="preset-btn-top">
+            <span class="preset-title">Available</span>
+            <div class="preset-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+          </div>
+          <div class="preset-desc">In cabin & open for student consultations</div>
+        </button>
+
+        <!-- Preset 2: Busy / Visitors -->
+        <button type="button" class="preset-btn preset-busy" id="presetBusyBtn" data-state="busy">
+          <div class="preset-btn-top">
+            <span class="preset-title">With Visitors</span>
+            <div class="preset-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="preset-desc">In cabin, engaged in active meeting</div>
+        </button>
+
+        <!-- Preset 3: In Class -->
+        <button type="button" class="preset-btn preset-class" id="presetClassBtn" data-state="away">
+          <div class="preset-btn-top">
+            <span class="preset-title">In Class</span>
+            <div class="preset-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="preset-desc">Conducting lecture at Block C - Room 302</div>
+        </button>
+
+        <!-- Preset 4: Lunch Break -->
+        <button type="button" class="preset-btn preset-lunch" id="presetLunchBtn" data-state="away">
+          <div class="preset-btn-top">
+            <span class="preset-title">Lunch Break</span>
+            <div class="preset-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                <line x1="6" y1="1" x2="6" y2="4"></line>
+                <line x1="10" y1="1" x2="10" y2="4"></line>
+                <line x1="14" y1="1" x2="14" y2="4"></line>
+              </svg>
+            </div>
+          </div>
+          <div class="preset-desc">Out for lunch at Faculty Lounge</div>
+        </button>
+      </div>
+
+      <!-- Custom Inputs Form -->
+      <form id="adminStatusForm" onsubmit="return false;">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inputReason">Activity / Absence Reason</label>
+            <input type="text" id="inputReason" class="form-control" placeholder="e.g. In Cabin - Consultations Open" value="In Cabin - Consultations Open" required>
+          </div>
+
+          <div class="form-group">
+            <label for="inputLocation">Current Location</label>
+            <input type="text" id="inputLocation" class="form-control" placeholder="e.g. Cabin 304, Block B" value="Cabin 304, Block B" required>
+          </div>
+        </div>
+
+        <!-- Expected Return Time Section -->
+        <div style="margin-top: 1.25rem;">
+          <label style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1; display: block; margin-bottom: 0.4rem;">
+            Estimated Return Time (Set if Away)
+          </label>
+          
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+            <input type="text" id="inputExpectedReturn" class="form-control" style="width: 220px; font-family: var(--font-mono);" placeholder="e.g. 11:30 AM (or none)">
+            
+            <!-- Quick Increment Chips -->
+            <div class="time-chips-group">
+              <button type="button" class="chip-btn" data-minutes="15">+15m</button>
+              <button type="button" class="chip-btn" data-minutes="30">+30m</button>
+              <button type="button" class="chip-btn" data-minutes="45">+45m</button>
+              <button type="button" class="chip-btn" data-minutes="60">+1h</button>
+              <button type="button" class="chip-btn chip-clear-btn" id="chipClearBtn">Clear Return</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <button type="button" id="btnBroadcastStatus" class="btn-dispatch" style="width: 100%; margin-top: 1.75rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="2"></circle>
+            <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path>
+          </svg>
+          Broadcast Status to Campus Network
+        </button>
+      </form>
+    </div>
+
+  </main>
+
+  <!-- Live Toast Banner -->
+  <div id="toastBanner" class="toast-banner">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
+    <div id="toastMessage">Status successfully updated & broadcasted!</div>
+  </div>
+
+</body>
+</html>

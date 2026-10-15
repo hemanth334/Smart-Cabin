@@ -1,0 +1,34 @@
+{
+  "name": "smart-cabin",
+  "version": "1.0.0",
+  "description": "A real-time smart campus dashboard for checking Head of Department (HOD) cabin availability, absence reasons, and predicted return times.",
+  "main": "server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test/test_phase1_2.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hemanth334/Smart-Cabin.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hemanth334/Smart-Cabin/issues"
+  },
+  "homepage": "https://github.com/hemanth334/Smart-Cabin#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.4"
+  }
+}
